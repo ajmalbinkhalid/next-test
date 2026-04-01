@@ -36,7 +36,7 @@ export interface VerifyOtpPayload {
 
 export interface VerifyOtpResponse {
   success: boolean;
-  login: boolean;
+  login: boolean | string | number | null;
   message: string;
   access_token?: string;
   refresh_token?: string;

@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn";
 
 export function AppBrand({ className }: { className?: string }) {
   return (
-    <Link href="/home" className={cn("inline-flex items-center justify-center gap-2.5", className)}>
+    <Link href="/instruction" className={cn("inline-flex items-center justify-center gap-2.5", className)}>
       <Image
         src="/icons/capblue.svg"
         alt={APP_NAME}

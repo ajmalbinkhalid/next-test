@@ -1,19 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
 import { AppProvider } from "@/provider/app-provider";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import "./globals.css";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: {
@@ -37,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
         <AppProvider>{children}</AppProvider>
       </body>

@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-inter: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-poppins: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
   --background: #f5f8fc;
   --foreground: #0f172a;
   --brand-50: #eef5ff;

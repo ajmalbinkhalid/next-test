@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { ExamHome } from "@/app/(protected)/home/_components/exam-home";
+import { ExamInstruction } from "@/app/(protected)/instruction/_components/exam-instruction";
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "Instruction",
   description: "Review your exam details and instructions before starting the test.",
   robots: {
     index: false,
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
-  return <ExamHome />;
+export default function InstructionPage() {
+  return <ExamInstruction />;
 }

@@ -18,7 +18,7 @@ export function ResultSummary() {
 
   useEffect(() => {
     if (mounted && !result) {
-      router.replace("/home");
+      router.replace("/instruction");
     }
   }, [mounted, result, router]);
 
@@ -63,7 +63,7 @@ export function ResultSummary() {
         className="mt-6 h-[42px] w-full rounded-[6px] bg-[var(--action-primary)] text-[16px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)]"
         onClick={() => {
           clearLatestExamResult();
-          router.push("/home");
+          router.push("/instruction");
         }}
       >
         Done

@@ -11,7 +11,7 @@ function formatExamDuration(totalMinutes: number) {
   return `${String(totalMinutes).padStart(2, "0")}:00`;
 }
 
-export function ExamHome() {
+export function ExamInstruction() {
   const router = useRouter();
   const examQuery = useQuery({
     queryKey: ["exam-questions"],

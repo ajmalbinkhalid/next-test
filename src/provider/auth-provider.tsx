@@ -8,24 +8,8 @@ import type {
   CreateProfilePayload,
   UserProfile,
 } from "@/types/auth";
-import type { ApiErrorResponse } from "@/types/api";
 import { useAuthStore } from "@/store/auth-store";
-
-function toTokens(payload: {
-  access_token?: string;
-  refresh_token?: string;
-  token_type?: string;
-}) {
-  if (!payload.access_token || !payload.refresh_token) {
-    return null;
-  }
-
-  return {
-    accessToken: payload.access_token,
-    refreshToken: payload.refresh_token,
-    tokenType: payload.token_type ?? "Bearer",
-  };
-}
+import type { ApiErrorResponse } from "@/types/api";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -49,25 +33,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function verifyOtp({ mobile, otp }: { mobile: string; otp: string }) {
     const response = await authApi.verifyOtp({ mobile, otp });
 
-    if (response.login) {
-      setSession({
-        tokens: toTokens(response),
-        user: session.user,
+    setSession(
+      {
+        tokens: null,
+        user: null,
         mobile,
-      });
-    } else {
-      setSession(
-        {
-          tokens: null,
-          user: null,
-          mobile,
-        },
-        "needs-profile",
-      );
-    }
+      },
+      "needs-profile",
+    );
 
     toast.success(response.message);
-    return { login: response.login, message: response.message };
+    return { login: false, message: response.message };
   }
 
   async function createProfile(payload: Omit<CreateProfilePayload, "mobile">) {

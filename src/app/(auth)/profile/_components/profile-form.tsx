@@ -18,7 +18,7 @@ import { getApiErrorMessage } from "@/utils/api-error";
 type ProfileFormValues = z.infer<typeof createProfileSchema>;
 
 const panelInputClassName =
-  "h-[40px] w-full rounded-[7px] border border-[#d9dde1] bg-white px-4 text-[14px] text-[#24384a] outline-none transition placeholder:text-[#c0c5cb] focus:border-[#22384a] focus:ring-4 focus:ring-[rgba(35,56,74,0.1)]";
+  "h-[38px] w-full rounded-[7px] border border-[#d9dde1] bg-white px-4 text-[14px] text-[#24384a] outline-none transition placeholder:text-[#c0c5cb] focus:border-[#22384a] focus:ring-4 focus:ring-[rgba(35,56,74,0.1)]";
 
 export function ProfileForm() {
   const router = useRouter();
@@ -70,7 +70,7 @@ export function ProfileForm() {
       await createProfile(values);
 
       startTransition(() => {
-        router.push("/home");
+        router.push("/instruction");
       });
     } catch (error) {
       const message = getApiErrorMessage(
@@ -85,8 +85,8 @@ export function ProfileForm() {
   return (
     <AuthShell>
       <form className="flex h-full flex-col" onSubmit={(event) => void handleSubmit(event)}>
-        <div className="space-y-4">
-          <h1 className="text-[24px] font-semibold tracking-[-0.03em] text-[#24384a] sm:text-[28px]">
+        <div className="space-y-3">
+          <h1 className="max-w-[300px] text-[24px] font-semibold tracking-[-0.03em] text-[#24384a] sm:text-[28px]">
             Add Your Details
           </h1>
 
@@ -94,7 +94,7 @@ export function ProfileForm() {
             <div className="relative">
               <label
                 htmlFor="profileImage"
-                className="relative flex h-[86px] w-[86px] cursor-pointer items-center justify-center overflow-hidden rounded-[8px] border border-dashed border-[#d9dde1] bg-[#fbfbfb] transition hover:bg-[#f5f7f8]"
+                className="relative flex h-[60px] w-[60px] cursor-pointer items-center justify-center overflow-hidden rounded-[8px] border border-dashed border-[#d9dde1] bg-[#fbfbfb] transition hover:bg-[#f5f7f8]"
               >
                 {previewUrl ? (
                   <Image
@@ -105,16 +105,18 @@ export function ProfileForm() {
                     unoptimized
                   />
                 ) : (
-                  <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="flex flex-col items-center gap-1 text-center">
                     <Image
                       src="/icons/camera.svg"
                       alt=""
-                      width={24}
-                      height={21}
-                      className="h-auto w-6"
+                      width={16}
+                      height={14}
+                      className="h-auto w-4"
                     />
-                    <span className="px-2 text-[7px] leading-3 text-[#c1c5ca]">
-                      Add Your Profile picture
+                    <span className="px-1 text-[5px] leading-[8px] text-[#c1c5ca]">
+                      Add Your
+                      {" "}
+                      Profile
                     </span>
                   </div>
                 )}
@@ -167,7 +169,7 @@ export function ProfileForm() {
           </div>
         </div>
 
-        <div className="mt-5 space-y-3 sm:space-y-4">
+        <div className="mt-4 space-y-2">
           <div>
             <label htmlFor="name" className="mb-1 block text-[10px] font-medium text-[#343330]">
               Name*
@@ -180,7 +182,7 @@ export function ProfileForm() {
               aria-describedby="name-error"
               {...form.register("name")}
             />
-            <p id="name-error" aria-live="polite" className="mt-1 min-h-4 text-[11px] text-rose-500">
+            <p id="name-error" aria-live="polite" className="mt-0.5 min-h-2.5 text-[10px] leading-[10px] text-rose-500">
               {form.formState.errors.name?.message}
             </p>
           </div>
@@ -198,7 +200,7 @@ export function ProfileForm() {
               aria-describedby="email-error"
               {...form.register("email")}
             />
-            <p id="email-error" aria-live="polite" className="mt-1 min-h-4 text-[11px] text-rose-500">
+            <p id="email-error" aria-live="polite" className="mt-0.5 min-h-2.5 text-[10px] leading-[10px] text-rose-500">
               {form.formState.errors.email?.message}
             </p>
           </div>
@@ -240,18 +242,18 @@ export function ProfileForm() {
             <p
               id="qualification-error"
               aria-live="polite"
-              className="mt-1 min-h-4 text-[11px] text-rose-500"
+              className="mt-0.5 min-h-2.5 text-[10px] leading-[10px] text-rose-500"
             >
               {form.formState.errors.qualification?.message}
             </p>
           </div>
         </div>
 
-        <p id="profile-image-error" aria-live="polite" className="mt-1 min-h-4 text-[11px] text-rose-500">
+        <p id="profile-image-error" aria-live="polite" className="mt-0.5 min-h-2.5 text-[10px] leading-[10px] text-rose-500">
           {form.formState.errors.profileImage?.message}
         </p>
 
-        <div className="mt-auto pt-5 sm:pt-4">
+        <div className="mt-auto pt-6 sm:pt-8">
           <Button
             type="submit"
             className="h-14 w-full rounded-[10px] bg-[var(--action-primary)] text-[16px] font-semibold text-white shadow-none hover:bg-[var(--action-primary-hover)] lg:h-[45px] lg:w-[339px]"

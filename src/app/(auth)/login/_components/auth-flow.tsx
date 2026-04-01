@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { AuthShell } from "@/app/(auth)/_components/auth-shell";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { sendOtpSchema, verifyOtpSchema } from "@/lib/schemas";
 import { useAuth } from "@/hooks/use-auth";
+import { useMounted } from "@/hooks/use-mounted";
 import { getApiErrorMessage } from "@/utils/api-error";
 import { normalizeIndianMobile, toNationalMobile } from "@/utils/format";
 
@@ -36,14 +37,15 @@ function formatOtp(value: string) {
 
 export function AuthFlow() {
   const router = useRouter();
-  const { mobile, sendOtp, status, verifyOtp } = useAuth();
-  const [currentMobile, setCurrentMobile] = useState(mobile ?? "");
-  const [otpSent, setOtpSent] = useState(status === "otp-sent" || status === "needs-profile");
+  const { sendOtp, verifyOtp } = useAuth();
+  const mounted = useMounted();
+  const [currentMobile, setCurrentMobile] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   const mobileForm = useForm<MobileFormValues>({
     resolver: zodResolver(sendOtpSchema),
     defaultValues: {
-      mobile: toNationalMobile(currentMobile),
+      mobile: "",
     },
   });
 
@@ -60,6 +62,36 @@ export function AuthFlow() {
     defaultValue: "",
   });
   const isOtpStep = otpSent && currentMobile.length > 0;
+
+  useEffect(() => {
+    if (!mounted) {
+      return;
+    }
+
+    mobileForm.reset({ mobile: "" });
+  }, [mobileForm, mounted]);
+
+  if (!mounted) {
+    return (
+      <AuthShell>
+        <div className="flex h-full flex-col">
+          <div className="space-y-3">
+            <div className="h-8 w-56 rounded-md bg-[#edf1f4]" />
+            <div className="h-5 w-64 rounded-md bg-[#f3f6f8]" />
+          </div>
+
+          <div className="mt-6 space-y-2 sm:mt-8">
+            <div className="h-4 w-24 rounded-md bg-[#f3f6f8]" />
+            <div className="h-14 w-full rounded-xl bg-[#f8fafc]" />
+          </div>
+
+          <div className="mt-auto pt-6 sm:pt-8">
+            <div className="h-14 w-full rounded-[10px] bg-[#e6edf2] lg:h-[45px] lg:w-[339px]" />
+          </div>
+        </div>
+      </AuthShell>
+    );
+  }
 
   const handleSendOtp = mobileForm.handleSubmit(async ({ mobile: nextMobile }) => {
     const normalizedMobile = normalizeIndianMobile(nextMobile);
@@ -95,10 +127,10 @@ export function AuthFlow() {
 
   const handleVerifyOtp = otpForm.handleSubmit(async ({ otp }) => {
     try {
-      const response = await verifyOtp({ mobile: currentMobile, otp });
+      await verifyOtp({ mobile: currentMobile, otp });
 
       startTransition(() => {
-        router.push(response.login ? "/home" : "/profile");
+        router.push("/profile");
       });
     } catch (error) {
       const message = getApiErrorMessage(error, "Unable to verify OTP. Please try again.");
@@ -218,8 +250,10 @@ export function AuthFlow() {
                 type="button"
                 className="text-xs font-medium text-[#4d5e6b]"
                 onClick={() => {
+                  setCurrentMobile("");
                   setOtpSent(false);
                   otpForm.reset({ otp: "" });
+                  mobileForm.reset({ mobile: "" });
                 }}
               >
                 Change number
