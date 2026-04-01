@@ -169,6 +169,7 @@ export function AuthFlow() {
                 inputMode="numeric"
                 autoComplete="tel-national"
                 placeholder="1234 567891"
+                maxLength={10}
                 className={`${panelInputClassName} pl-14`}
                 aria-invalid={mobileForm.formState.errors.mobile ? "true" : "false"}
                 aria-describedby="mobile-error"

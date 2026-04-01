@@ -4,8 +4,7 @@ export const sendOtpSchema = z.object({
   mobile: z
     .string()
     .trim()
-    .min(10, "Enter a valid mobile number")
-    .max(15, "Enter a valid mobile number")
+    .length(10, "Enter a valid 10-digit mobile number")
     .regex(/^\d+$/, "Only digits are allowed"),
 });
 
