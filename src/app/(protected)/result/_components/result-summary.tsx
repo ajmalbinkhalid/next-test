@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -26,14 +27,14 @@ export function ResultSummary() {
   }
 
   const summaryItems = [
-    { label: "Total Questions:", value: result.correct + result.wrong + result.not_attended, color: "#e4ac26", icon: "□" },
-    { label: "Correct Answers:", value: result.correct, color: "#49b34d", icon: "✓" },
-    { label: "Incorrect Answers:", value: result.wrong, color: "#ff3b34", icon: "×" },
-    { label: "Not Attended Questions:", value: result.not_attended, color: "#5f6368", icon: "!" },
+    { label: "Total Questions:", value: result.correct + result.wrong + result.not_attended, color: "#e4ac26" },
+    { label: "Correct Answers:", value: result.correct, color: "#49b34d" },
+    { label: "Incorrect Answers:", value: result.wrong, color: "#ff3b34" },
+    { label: "Not Attended Questions:", value: result.not_attended, color: "#5f6368" },
   ];
 
   return (
-    <section className="mx-auto flex w-full max-w-[420px] flex-col items-center px-1 py-4 sm:px-4 sm:py-5">
+    <section className="mx-auto flex w-full max-w-[429px] flex-col items-center px-1 py-4 sm:px-4 sm:py-5">
       <div className="w-full rounded-[14px] bg-[linear-gradient(180deg,#1f87ac_0%,#2d5f88_100%)] px-6 py-4 text-center text-white shadow-[0_18px_32px_rgba(35,56,74,0.12)]">
         <p className="text-[16px] font-medium sm:text-[18px]">Marks Obtained:</p>
         <p className="mt-1 text-[48px] font-light tracking-[-0.06em] sm:text-[62px]">
@@ -49,7 +50,7 @@ export function ResultSummary() {
                 className="grid h-7 w-7 place-items-center rounded-[4px] text-white"
                 style={{ backgroundColor: item.color }}
               >
-                {item.icon}
+                <Image src="/icons/help.svg" alt="" width={12} height={12} className="h-3 w-3" />
               </span>
               <span className="text-[14px] sm:text-[16px]">{item.label}</span>
             </div>

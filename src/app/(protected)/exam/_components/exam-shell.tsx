@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import examApi from "@/api/exam-api";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,18 +21,9 @@ import { formatSeconds } from "@/utils/format";
 import { toast } from "sonner";
 import type { ExamSubmissionResponse } from "@/types/exam";
 
-const paragraphText = `Ancient Indian history spans several millennia and offers a profound glimpse into the origins of one of the world's oldest and most diverse civilizations. It begins with the Indus Valley Civilization (c. 2500-1500 BCE), which is renowned for its advanced urban planning, architecture, and water management systems. Cities like Harappa and Mohenjo-Daro were highly developed, with sophisticated drainage systems and well-organized streets, showcasing the early brilliance of Indian civilization. The decline of this civilization remains a mystery, but it marks the transition to the next significant phase in Indian history.
-
-Following the Indus Valley Civilization, the Vedic Period (c. 1500-600 BCE) saw the arrival of the Aryans in northern India. This period is characterized by the early composition of the Vedas, which laid the foundations of Hinduism and early Indian society.
-
-It was during this time that the varna system (social hierarchy) began to develop, which later evolved into the caste system. The Vedic Age also witnessed the rise of important kingdoms and the spread of agricultural practices across the region, significantly impacting the social and cultural fabric of ancient India.
-
-The 6th century BCE marked a turning point with the emergence of new religious and philosophical movements. Buddhism and Jainism, led by Gautama Buddha and Mahavira, challenged the existing Vedic orthodoxy and offered alternative paths to spiritual enlightenment. These movements gained widespread popularity and had a lasting influence on Indian society and culture. During this time, the kingdom of Magadha became one of the most powerful, laying the groundwork for future empires.
-
-The Maurya Empire (c. 322-185 BCE), founded by Chandragupta Maurya, became the first large empire to unify much of the Indian subcontinent. Under Ashoka the Great, the empire reached its zenith, and Buddhism flourished both in India and abroad. Ashoka's support for non-violence, his spread of Buddhist teachings, and his contributions to governance and infrastructure had a lasting legacy on Indian history. His reign marks one of the earliest and most notable examples of state-sponsored religious tolerance and moral governance.`;
-
 export function ExamShell() {
   const router = useRouter();
+  const hasAutoSubmitAttemptedRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number | null>>({});
   const [visitedIndexes, setVisitedIndexes] = useState<number[]>([]);
@@ -141,15 +132,43 @@ export function ExamShell() {
   );
 
   useEffect(() => {
-    if (effectiveRemainingTime === 0 && questions.length > 0 && !submitMutation.isPending) {
+    if (effectiveRemainingTime !== 0 || questions.length === 0 || hasAutoSubmitAttemptedRef.current) {
+      return;
+    }
+
+    hasAutoSubmitAttemptedRef.current = true;
+
+    if (skippedCount > 0) {
+      toast.error(
+        skippedCount === 1
+          ? "Time is up. 1 question is still unanswered, so the test was not submitted."
+          : `Time is up. ${skippedCount} questions are still unanswered, so the test was not submitted.`,
+      );
+      return;
+    }
+
+    if (!submitMutation.isPending) {
       submitMutation.mutate(submissionPayload);
     }
-  }, [effectiveRemainingTime, questions.length, submissionPayload, submitMutation]);
+  }, [effectiveRemainingTime, questions.length, skippedCount, submissionPayload, submitMutation]);
 
   const reviewCount = reviewIndexes.length;
   const timeLabel = formatSeconds(effectiveRemainingTime ?? 0);
+  const comprehensionParagraphs = useMemo(() => {
+    const text = activeQuestion?.comprehension?.trim();
+
+    if (!text) {
+      return [];
+    }
+
+    return text.split(/\n{2,}/).filter(Boolean);
+  }, [activeQuestion?.comprehension]);
 
   const submitExam = () => {
+    if (submitMutation.isPending) {
+      return;
+    }
+
     if (!submissionPayload.length) {
       toast.error("Answer at least one question before submitting the test.");
       setIsSubmitOpen(false);
@@ -339,7 +358,7 @@ export function ExamShell() {
             <div className="sm:text-right">
               <p className="text-[14px] font-medium text-[#24384a]">Remaining Time:</p>
               <div className="mt-1 inline-flex items-center gap-2 rounded-[4px] bg-[#24384a] px-3 py-2 text-[14px] font-medium text-white">
-                <span className="grid h-4 w-4 place-items-center rounded-full bg-white/14">o</span>
+                <Image src="/icons/timer.svg" alt="" width={16} height={16} className="h-4 w-4" />
                 {timeLabel}
               </div>
             </div>
@@ -397,8 +416,8 @@ export function ExamShell() {
       </section>
 
       <Dialog open={isParagraphOpen} onOpenChange={setIsParagraphOpen}>
-        <DialogContent className="h-auto max-w-[calc(100vw-1.5rem)] rounded-[14px] px-0 py-0 lg:h-[633px] lg:w-[1410px] lg:max-w-[1410px]">
-          <div className="border-b border-[#dfe6eb] px-4 py-3">
+        <DialogContent className="h-auto max-w-[calc(100vw-1.5rem)] rounded-[14px] px-0 py-0 lg:w-[1410px] lg:max-w-[1410px]">
+          <div className="border-b border-[#dfe6eb] px-[31px] py-3">
             <DialogTitle className="text-[18px] font-medium text-[#24384a] sm:text-[20px]">
               Comprehensive Paragraph
             </DialogTitle>
@@ -406,14 +425,18 @@ export function ExamShell() {
               Read the passage related to the current exam question.
             </DialogDescription>
           </div>
-          <div className="max-h-[65vh] overflow-y-auto px-4 py-5 text-[14px] leading-6 text-[#24384a] sm:text-[15px] sm:leading-7">
-            {paragraphText.split("\n\n").map((item) => (
-              <p key={item} className="mb-6 last:mb-0">
-                {item}
-              </p>
-            ))}
+          <div className="max-h-[65vh] overflow-y-auto px-[31px] py-[31px] text-[14px] leading-6 text-[#24384a] sm:text-[15px] sm:leading-7">
+            {comprehensionParagraphs.length ? (
+              comprehensionParagraphs.map((item) => (
+                <p key={item} className="mb-6 last:mb-0">
+                  {item}
+                </p>
+              ))
+            ) : (
+              <p>No comprehensive paragraph is available for this question.</p>
+            )}
           </div>
-          <div className="flex justify-end px-4 pb-4">
+          <div className="flex justify-end px-[31px] pb-[31px]">
             <DialogClose asChild>
               <Button className="h-[42px] w-full rounded-[6px] bg-[var(--action-primary)] text-[15px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)] sm:min-w-[244px] sm:w-auto sm:text-[16px]">
                 Minimize
@@ -440,7 +463,9 @@ export function ExamShell() {
           <div className="space-y-4 px-4 py-4 text-[14px] text-[#24384a] sm:min-h-[244px]">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="grid h-6 w-6 place-items-center rounded-[4px] bg-[#24384a] text-white">o</span>
+                <span className="grid h-6 w-6 place-items-center rounded-[4px] bg-[#24384a] text-white">
+                  <Image src="/icons/timer.svg" alt="" width={14} height={14} className="h-3.5 w-3.5" />
+                </span>
                 <span>Remaining Time:</span>
               </div>
               <span className="font-semibold">{timeLabel}</span>

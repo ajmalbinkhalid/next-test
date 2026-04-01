@@ -11,7 +11,7 @@ const variants: Record<ButtonVariant, string> = {
   primary:
     "bg-[var(--action-primary)] text-white hover:bg-[var(--action-primary-hover)]",
   secondary:
-    "bg-white text-[var(--slate-900)] ring-1 ring-[var(--slate-200)] hover:bg-[var(--slate-50)]",
+    "bg-[var(--action-secondary)] text-white hover:bg-[var(--action-secondary-hover)]",
   ghost:
     "bg-transparent text-[var(--brand-700)] hover:bg-[var(--brand-50)]",
 };

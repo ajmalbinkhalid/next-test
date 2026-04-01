@@ -19,14 +19,14 @@ export default async function ProtectedLayout({
   return (
     <main className="min-h-screen bg-[#eef8ff]">
       <header className="border-b border-[#dbe6ec] bg-white">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:h-[90px] lg:flex-nowrap lg:py-0">
-          <AppBrand className="shrink-0" />
-          <div className="ml-auto">
+        <div className="relative flex w-full items-center justify-end px-4 py-3 sm:px-5 lg:h-[90px] lg:py-0">
+          <AppBrand className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 shrink-0" />
+          <div className="lg:mr-[28px]">
             <UserMenu />
           </div>
         </div>
       </header>
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col px-3 py-4 sm:px-5 sm:py-5">
+      <div className="flex w-full flex-col px-3 py-4 sm:px-5 sm:py-5">
         {children}
       </div>
     </main>
