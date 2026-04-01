@@ -3,96 +3,55 @@
 import axios, { AxiosError } from "axios";
 import type { ApiErrorResponse } from "@/types/api";
 import { useAuthStore } from "@/store/auth-store";
-import { getAccessToken, getRefreshToken } from "@/utils/auth-storage";
+import { getAccessToken } from "@/utils/auth-storage";
+import { API_BASE_URL } from "@/utils/base-url";
 
-type RetriableRequestConfig = {
-  _retry?: boolean;
-  headers?: Record<string, string>;
+type ErrorPayload = ApiErrorResponse & {
+  detail?:
+    | string
+    | (Partial<ApiErrorResponse> & {
+        detail?: string;
+      });
 };
 
-export const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Type": "application/json",
-    "ngrok-skip-browser-warning": "true",
-  },
-  timeout: 15_000,
-});
-
-const refreshClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Type": "application/json",
-    "ngrok-skip-browser-warning": "true",
-  },
-  timeout: 15_000,
-});
-
-let refreshPromise: Promise<string | null> | null = null;
-
-async function refreshAccessToken() {
-  const refreshToken = getRefreshToken();
-
-  if (!refreshToken) {
-    return null;
+function readApiErrorMessage(payload?: ErrorPayload) {
+  if (!payload) {
+    return undefined;
   }
 
-  if (!refreshPromise) {
-    refreshPromise = (async () => {
-      const attempts = [
-        () =>
-          refreshClient.post("/auth/refresh-token", {
-            refresh_token: refreshToken,
-          }),
-        () =>
-          refreshClient.post("/auth/refresh", {
-            refresh_token: refreshToken,
-          }),
-      ];
-
-      for (const attempt of attempts) {
-        try {
-          const response = await attempt();
-          const data = response.data as {
-            access_token?: string;
-            refresh_token?: string;
-            token_type?: string;
-          };
-
-          if (!data.access_token || !data.refresh_token) {
-            continue;
-          }
-
-          const currentSession = useAuthStore.getState().session;
-
-          useAuthStore.getState().setSession({
-            ...currentSession,
-            tokens: {
-              accessToken: data.access_token,
-              refreshToken: data.refresh_token,
-              tokenType: data.token_type ?? "Bearer",
-            },
-          });
-
-          return data.access_token;
-        } catch {
-          // Try the next refresh endpoint shape.
-        }
-      }
-
-      useAuthStore.getState().clearSession();
-      return null;
-    })().finally(() => {
-      refreshPromise = null;
-    });
+  if (typeof payload.detail === "string") {
+    return payload.detail;
   }
 
-  return refreshPromise;
+  if (payload.detail && typeof payload.detail === "object") {
+    return payload.detail.message ?? payload.detail.detail;
+  }
+
+  return payload.message;
 }
+
+function readApiErrorErrors(payload?: ErrorPayload) {
+  if (!payload) {
+    return undefined;
+  }
+
+  if (payload.detail && typeof payload.detail === "object") {
+    return payload.detail.errors ?? payload.errors;
+  }
+
+  return payload.errors;
+}
+
+export const axiosClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "Accept-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
+  timeout: 15_000,
+});
 
 axiosClient.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
@@ -113,43 +72,19 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiErrorResponse>) => {
-    const originalRequest = error.config as typeof error.config & RetriableRequestConfig;
+    const responsePayload = error.response?.data as ErrorPayload | undefined;
 
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes("/auth/logout")
-    ) {
-      originalRequest._retry = true;
-
-      return refreshAccessToken().then((nextAccessToken) => {
-        if (!nextAccessToken) {
-          const apiError: ApiErrorResponse = {
-            success: false,
-            message: "Your session expired. Please log in again.",
-            statusCode: 401,
-          };
-
-          return Promise.reject(apiError);
-        }
-
-        originalRequest.headers = {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${nextAccessToken}`,
-        };
-
-        return axiosClient(originalRequest);
-      });
+    if (error.response?.status === 401) {
+      useAuthStore.getState().clearSession();
     }
 
     const apiError: ApiErrorResponse = {
       success: false,
       message:
-        error.response?.data?.message ??
+        readApiErrorMessage(responsePayload) ??
         error.message ??
         "Something went wrong. Please try again.",
-      errors: error.response?.data?.errors,
+      errors: readApiErrorErrors(responsePayload),
       statusCode: error.response?.status,
     };
 

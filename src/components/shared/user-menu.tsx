@@ -9,7 +9,7 @@ export function UserMenu() {
   return (
     <div className="flex items-center justify-end">
       <Button
-        className="h-[34px] rounded-[4px] bg-[#1d8cbc] px-4 text-[12px] font-medium text-white shadow-none hover:bg-[#1678a2] sm:px-5 sm:text-[13px]"
+        className="h-[45px] w-[101px] rounded-[4px] bg-[var(--action-info)] px-4 text-[12px] font-medium text-white shadow-none hover:bg-[var(--action-info-hover)] sm:text-[13px]"
         onClick={() => void logout()}
       >
         Logout

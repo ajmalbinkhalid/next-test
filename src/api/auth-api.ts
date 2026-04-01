@@ -4,8 +4,6 @@ import axiosClient from "@/api/config/axios-client";
 import type {
   CreateProfilePayload,
   CreateProfileResponse,
-  RefreshTokenPayload,
-  RefreshTokenResponse,
   SendOtpPayload,
   VerifyOtpPayload,
   VerifyOtpResponse,
@@ -26,87 +24,48 @@ function toFormData<T extends object>(payload: T) {
   return formData;
 }
 
+async function postForm<T>(url: string, payload: Record<string, string | Blob | undefined>) {
+  const response = await axiosClient.post<T>(url, toFormData(payload));
+  return response.data;
+}
+
 export const authApi = {
   sendOtp: async (payload: SendOtpPayload): Promise<{ success: boolean; message: string }> => {
-    const response = await axiosClient.post(
+    return postForm(
       "/auth/send-otp",
-      toFormData({
+      {
         ...payload,
         mobile: normalizeIndianMobile(payload.mobile),
-      }),
+      },
     );
-
-    return response.data;
   },
 
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
-    const response = await axiosClient.post(
+    return postForm(
       "/auth/verify-otp",
-      toFormData({
+      {
         ...payload,
         mobile: normalizeIndianMobile(payload.mobile),
-      }),
+      },
     );
-
-    return response.data;
   },
 
   createProfile: async (payload: CreateProfilePayload): Promise<CreateProfileResponse> => {
-    const response = await axiosClient.post(
+    return postForm(
       "/auth/create-profile",
-      toFormData({
+      {
         mobile: normalizeIndianMobile(payload.mobile),
         name: payload.name,
         email: payload.email,
         qualification: payload.qualification,
         profile_image: payload.profileImage,
-      }),
+      },
     );
-
-    return response.data;
   },
 
   logout: async (): Promise<{ success: boolean; message: string }> => {
     const response = await axiosClient.post("/auth/logout");
     return response.data;
-  },
-
-  refreshToken: async (
-    payload: RefreshTokenPayload,
-  ): Promise<RefreshTokenResponse> => {
-    const attempts = [
-      () =>
-        axiosClient.post("/auth/refresh-token", {
-          refresh_token: payload.refreshToken,
-        }),
-      () =>
-        axiosClient.post("/auth/refresh", {
-          refresh_token: payload.refreshToken,
-        }),
-      () =>
-        axiosClient.post(
-          "/auth/refresh-token",
-          toFormData({ refresh_token: payload.refreshToken }),
-        ),
-      () =>
-        axiosClient.post(
-          "/auth/refresh",
-          toFormData({ refresh_token: payload.refreshToken }),
-        ),
-    ];
-
-    let lastError: unknown;
-
-    for (const attempt of attempts) {
-      try {
-        const response = await attempt();
-        return response.data;
-      } catch (error) {
-        lastError = error;
-      }
-    }
-
-    throw lastError;
   },
 };
 

@@ -89,7 +89,7 @@ export function ExamHome() {
       </div>
 
       <Button
-        className="mt-6 h-[42px] min-w-[230px] rounded-[6px] bg-[#24384a] px-8 text-[16px] font-medium shadow-none hover:bg-[#1d2f3d]"
+        className="mt-6 h-[42px] min-w-[230px] rounded-[6px] bg-[var(--action-primary)] px-8 text-[16px] font-medium shadow-none hover:bg-[var(--action-primary-hover)]"
         onClick={() => router.push("/exam")}
       >
         Start Test

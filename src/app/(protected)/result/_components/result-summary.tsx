@@ -59,7 +59,7 @@ export function ResultSummary() {
       </div>
 
       <Button
-        className="mt-6 h-[42px] w-full rounded-[6px] bg-[#24384a] text-[16px] font-medium text-white shadow-none hover:bg-[#1d2f3d]"
+        className="mt-6 h-[42px] w-full rounded-[6px] bg-[var(--action-primary)] text-[16px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)]"
         onClick={() => {
           clearLatestExamResult();
           router.push("/home");

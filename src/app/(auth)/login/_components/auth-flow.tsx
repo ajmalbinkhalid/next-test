@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { sendOtpSchema, verifyOtpSchema } from "@/lib/schemas";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiErrorMessage } from "@/utils/api-error";
 import { normalizeIndianMobile, toNationalMobile } from "@/utils/format";
 
 type MobileFormValues = {
@@ -31,23 +32,6 @@ function formatOtp(value: string) {
   }
 
   return `${cleanValue.slice(0, 3)} ${cleanValue.slice(3)}`;
-}
-
-function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message;
-  }
-
-  return fallback;
 }
 
 export function AuthFlow() {
@@ -88,7 +72,7 @@ export function AuthFlow() {
       otpForm.reset({ otp: "" });
       return response;
     } catch (error) {
-      const message = getErrorMessage(error, "Unable to send OTP. Please try again.");
+      const message = getApiErrorMessage(error, "Unable to send OTP. Please try again.");
       toast.error(message);
       console.error("sendOtp failed", error);
     }
@@ -103,7 +87,7 @@ export function AuthFlow() {
       await sendOtp({ mobile: currentMobile });
       toast.success("OTP resent successfully.");
     } catch (error) {
-      const message = getErrorMessage(error, "Unable to resend OTP. Please try again.");
+      const message = getApiErrorMessage(error, "Unable to resend OTP. Please try again.");
       toast.error(message);
       console.error("resendOtp failed", error);
     }
@@ -117,7 +101,7 @@ export function AuthFlow() {
         router.push(response.login ? "/home" : "/profile");
       });
     } catch (error) {
-      const message = getErrorMessage(error, "Unable to verify OTP. Please try again.");
+      const message = getApiErrorMessage(error, "Unable to verify OTP. Please try again.");
       toast.error(message);
       console.error("verifyOtp failed", error);
     }
@@ -171,7 +155,7 @@ export function AuthFlow() {
           <div className="mt-auto pt-6 sm:pt-8">
             <Button
               type="submit"
-              className="h-14 w-full rounded-[10px] bg-[#24384a] text-[16px] font-semibold text-white shadow-none hover:bg-[#1d2f3d]"
+              className="h-14 w-full rounded-[10px] bg-[var(--action-primary)] text-[16px] font-semibold text-white shadow-none hover:bg-[var(--action-primary-hover)] lg:h-[45px] lg:w-[339px]"
               disabled={mobileForm.formState.isSubmitting}
             >
               {mobileForm.formState.isSubmitting ? <Spinner /> : "Get Started"}
@@ -246,7 +230,7 @@ export function AuthFlow() {
           <div className="mt-auto pt-6 sm:pt-8">
             <Button
               type="submit"
-              className="h-14 w-full rounded-[10px] bg-[#24384a] text-[16px] font-semibold text-white shadow-none hover:bg-[#1d2f3d]"
+              className="h-14 w-full rounded-[10px] bg-[var(--action-primary)] text-[16px] font-semibold text-white shadow-none hover:bg-[var(--action-primary-hover)] lg:h-[45px] lg:w-[339px]"
               disabled={otpForm.formState.isSubmitting}
             >
               {otpForm.formState.isSubmitting ? <Spinner /> : "Get Started"}

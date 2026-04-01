@@ -19,7 +19,7 @@ export default async function ProtectedLayout({
   return (
     <main className="min-h-screen bg-[#eef8ff]">
       <header className="border-b border-[#dbe6ec] bg-white">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
+        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:h-[90px] lg:flex-nowrap lg:py-0">
           <AppBrand className="shrink-0" />
           <div className="ml-auto">
             <UserMenu />

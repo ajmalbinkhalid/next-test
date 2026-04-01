@@ -13,28 +13,12 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/hooks/use-auth";
 import { QUALIFICATION_OPTIONS } from "@/lib/constants";
 import { createProfileSchema } from "@/lib/schemas";
+import { getApiErrorMessage } from "@/utils/api-error";
 
 type ProfileFormValues = z.infer<typeof createProfileSchema>;
 
 const panelInputClassName =
   "h-[40px] w-full rounded-[7px] border border-[#d9dde1] bg-white px-4 text-[14px] text-[#24384a] outline-none transition placeholder:text-[#c0c5cb] focus:border-[#22384a] focus:ring-4 focus:ring-[rgba(35,56,74,0.1)]";
-
-function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  ) {
-    return error.message;
-  }
-
-  return fallback;
-}
 
 export function ProfileForm() {
   const router = useRouter();
@@ -89,7 +73,7 @@ export function ProfileForm() {
         router.push("/home");
       });
     } catch (error) {
-      const message = getErrorMessage(
+      const message = getApiErrorMessage(
         error,
         "Unable to complete your profile. Please try again.",
       );
@@ -270,7 +254,7 @@ export function ProfileForm() {
         <div className="mt-auto pt-5 sm:pt-4">
           <Button
             type="submit"
-            className="h-14 w-full rounded-[10px] bg-[#24384a] text-[16px] font-semibold text-white shadow-none hover:bg-[#1d2f3d]"
+            className="h-14 w-full rounded-[10px] bg-[var(--action-primary)] text-[16px] font-semibold text-white shadow-none hover:bg-[var(--action-primary-hover)] lg:h-[45px] lg:w-[339px]"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? <Spinner /> : "Get Started"}

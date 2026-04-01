@@ -10,10 +10,12 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import type { SubmittedAnswerPayload } from "@/types/exam";
+import { getApiErrorMessage, getApiFieldErrors, isApiError } from "@/utils/api-error";
 import { writeLatestExamResult } from "@/utils/exam-storage";
 import { formatSeconds } from "@/utils/format";
 import { toast } from "sonner";
@@ -102,27 +104,23 @@ export function ExamShell() {
     },
     onError: (error) => {
       const hasSkippedQuestions = skippedCount > 0;
+      const apiError = isApiError(error) ? error : null;
       const statusCode =
-        typeof error === "object" &&
-        error !== null &&
-        "statusCode" in error &&
-        typeof error.statusCode === "number"
-          ? error.statusCode
+        apiError &&
+        "statusCode" in apiError &&
+        typeof apiError.statusCode === "number"
+          ? apiError.statusCode
           : undefined;
-      const message =
-        typeof error === "object" &&
-        error !== null &&
-        "message" in error &&
-        typeof error.message === "string"
-          ? error.message
-          : "Unable to submit the test. Please try again.";
+      const message = getApiErrorMessage(error, "Unable to submit the test. Please try again.");
+      const fieldErrors = getApiFieldErrors(error);
+      const detailMessage = fieldErrors[0] ?? message;
 
       toast.error(
         hasSkippedQuestions
           ? "Skipped questions could not be submitted in the current format. We saved your answered questions and are retrying."
           : statusCode === 500
             ? "We couldn't finish submitting your test right now. Your answers are still here, so please try again in a moment."
-          : message,
+          : detailMessage,
       );
       console.warn("submitExam failed", error);
     },
@@ -245,7 +243,7 @@ export function ExamShell() {
           <div className="rounded-[8px] border border-[#deebf2] bg-white p-3 shadow-[0_12px_26px_rgba(24,44,66,0.06)] sm:p-4">
             <button
               type="button"
-              className="inline-flex min-h-[34px] max-w-full items-center gap-2 rounded-[4px] bg-[#1d8cbc] px-3 py-2 text-[12px] font-medium text-white hover:bg-[#1678a2] sm:h-[34px] sm:px-4 sm:py-0 sm:text-[13px]"
+              className="inline-flex min-h-[34px] max-w-full items-center gap-2 rounded-[4px] bg-[var(--action-info)] px-3 py-2 text-[12px] font-medium text-white hover:bg-[var(--action-info-hover)] sm:h-[34px] sm:px-4 sm:py-0 sm:text-[13px]"
               onClick={() => setIsParagraphOpen(true)}
             >
               <Image src="/icons/ArticleNyTimes.svg" alt="" width={14} height={14} className="h-3.5 w-3.5" />
@@ -317,14 +315,14 @@ export function ExamShell() {
             </Button>
             {activeIndex === questionTotal - 1 ? (
               <Button
-                className="h-[42px] rounded-[4px] bg-[#24384a] text-[14px] font-medium text-white shadow-none hover:bg-[#1d2f3d] sm:text-[15px]"
+                className="h-[42px] rounded-[4px] bg-[var(--action-primary)] text-[14px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)] sm:text-[15px]"
                 onClick={() => setIsSubmitOpen(true)}
               >
                 Submit Test
               </Button>
             ) : (
               <Button
-                className="h-[42px] rounded-[4px] bg-[#24384a] text-[14px] font-medium text-white shadow-none hover:bg-[#1d2f3d] sm:text-[15px]"
+                className="h-[42px] rounded-[4px] bg-[var(--action-primary)] text-[14px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)] sm:text-[15px]"
                 onClick={() => moveToQuestion(activeIndex + 1)}
               >
                 Next
@@ -399,11 +397,14 @@ export function ExamShell() {
       </section>
 
       <Dialog open={isParagraphOpen} onOpenChange={setIsParagraphOpen}>
-        <DialogContent className="max-w-[calc(100vw-1.5rem)] rounded-[14px] px-0 py-0 sm:max-w-[950px]">
+        <DialogContent className="h-auto max-w-[calc(100vw-1.5rem)] rounded-[14px] px-0 py-0 lg:h-[633px] lg:w-[1410px] lg:max-w-[1410px]">
           <div className="border-b border-[#dfe6eb] px-4 py-3">
             <DialogTitle className="text-[18px] font-medium text-[#24384a] sm:text-[20px]">
               Comprehensive Paragraph
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Read the passage related to the current exam question.
+            </DialogDescription>
           </div>
           <div className="max-h-[65vh] overflow-y-auto px-4 py-5 text-[14px] leading-6 text-[#24384a] sm:text-[15px] sm:leading-7">
             {paragraphText.split("\n\n").map((item) => (
@@ -414,7 +415,7 @@ export function ExamShell() {
           </div>
           <div className="flex justify-end px-4 pb-4">
             <DialogClose asChild>
-              <Button className="h-[42px] w-full rounded-[6px] bg-[#24384a] text-[15px] font-medium text-white shadow-none hover:bg-[#1d2f3d] sm:min-w-[244px] sm:w-auto sm:text-[16px]">
+              <Button className="h-[42px] w-full rounded-[6px] bg-[var(--action-primary)] text-[15px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)] sm:min-w-[244px] sm:w-auto sm:text-[16px]">
                 Minimize
               </Button>
             </DialogClose>
@@ -428,6 +429,9 @@ export function ExamShell() {
             <DialogTitle className="text-[16px] font-medium text-[#24384a]">
               Are you sure you want to submit the test?
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Review your exam summary before confirming submission.
+            </DialogDescription>
             <DialogClose aria-label="Close submit dialog" className="text-[18px] leading-none text-[#51606d]">
               x
             </DialogClose>
@@ -466,7 +470,7 @@ export function ExamShell() {
 
           <div className="px-4 pb-4">
             <Button
-              className="h-[42px] w-full rounded-[6px] bg-[#24384a] text-[16px] font-medium text-white shadow-none hover:bg-[#1d2f3d]"
+              className="h-[42px] w-full rounded-[6px] bg-[var(--action-primary)] text-[16px] font-medium text-white shadow-none hover:bg-[var(--action-primary-hover)]"
               disabled={submitMutation.isPending}
               onClick={submitExam}
             >

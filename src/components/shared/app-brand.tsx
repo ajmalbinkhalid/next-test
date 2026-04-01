@@ -11,7 +11,7 @@ export function AppBrand({ className }: { className?: string }) {
         alt={APP_NAME}
         width={48}
         height={46}
-        className="h-auto w-10 sm:w-12"
+        className="h-auto w-10 sm:h-auto sm:w-12"
       />
       <span className="leading-none">
         <span className="block font-[var(--font-poppins)] text-[15px] font-semibold tracking-[-0.03em] text-[#1180b3] sm:text-[17px]">

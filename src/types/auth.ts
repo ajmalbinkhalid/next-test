@@ -19,6 +19,12 @@ export interface AuthSession {
   mobile: string | null;
 }
 
+export const EMPTY_AUTH_SESSION: AuthSession = {
+  tokens: null,
+  user: null,
+  mobile: null,
+};
+
 export interface SendOtpPayload {
   mobile: string;
 }
@@ -34,18 +40,6 @@ export interface VerifyOtpResponse {
   message: string;
   access_token?: string;
   refresh_token?: string;
-  token_type?: string;
-}
-
-export interface RefreshTokenPayload {
-  refreshToken: string;
-}
-
-export interface RefreshTokenResponse {
-  success: boolean;
-  message: string;
-  access_token: string;
-  refresh_token: string;
   token_type?: string;
 }
 
@@ -66,7 +60,6 @@ export interface CreateProfileResponse {
 }
 
 export type AuthStatus =
-  | "loading"
   | "unauthenticated"
   | "otp-sent"
   | "needs-profile"
@@ -74,7 +67,6 @@ export type AuthStatus =
 
 export interface AuthContextValue {
   status: AuthStatus;
-  isReady: boolean;
   user: UserProfile | null;
   mobile: string | null;
   tokens: AuthTokens | null;
@@ -86,5 +78,4 @@ export interface AuthContextValue {
     payload: Omit<CreateProfilePayload, "mobile">,
   ) => Promise<{ message: string }>;
   logout: () => Promise<void>;
-  refreshFromStorage: () => void;
 }

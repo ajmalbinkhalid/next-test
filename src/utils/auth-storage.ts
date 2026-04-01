@@ -4,17 +4,11 @@ import {
   ACCESS_TOKEN_COOKIE,
   AUTH_STORAGE_KEY,
 } from "@/lib/constants";
-import type { AuthSession } from "@/types/auth";
+import { EMPTY_AUTH_SESSION, type AuthSession } from "@/types/auth";
 import { isBrowser, readStorage, removeStorage, writeStorage } from "@/utils/browser-storage";
 
-const EMPTY_SESSION: AuthSession = {
-  tokens: null,
-  user: null,
-  mobile: null,
-};
-
 export function readAuthSession() {
-  return readStorage<AuthSession>(AUTH_STORAGE_KEY) ?? EMPTY_SESSION;
+  return readStorage<AuthSession>(AUTH_STORAGE_KEY) ?? EMPTY_AUTH_SESSION;
 }
 
 export function writeAuthSession(session: AuthSession) {
@@ -29,10 +23,6 @@ export function clearAuthSession() {
 
 export function getAccessToken() {
   return readAuthSession().tokens?.accessToken ?? null;
-}
-
-export function getRefreshToken() {
-  return readAuthSession().tokens?.refreshToken ?? null;
 }
 
 function syncAccessTokenCookie(token: string | null) {

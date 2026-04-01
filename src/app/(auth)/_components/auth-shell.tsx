@@ -2,10 +2,10 @@ import Image from "next/image";
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <section className="w-full max-w-[980px]">
+    <section className="w-full max-w-[866px]">
       <div className="overflow-hidden rounded-[12px] border border-[#496170] bg-[#24384a] shadow-[0_18px_48px_rgba(0,0,0,0.28)]">
-        <div className="grid min-h-[540px] lg:grid-cols-[1.08fr_0.92fr]">
-          <div className="flex flex-col justify-between bg-[linear-gradient(180deg,#263b4d_0%,#24384a_100%)] px-5 py-6 text-white sm:px-8 sm:py-7 lg:px-10 lg:py-8">
+        <div className="grid min-h-[540px] lg:h-[501px] lg:min-h-[501px] lg:grid-cols-[462px_1fr]">
+          <div className="flex flex-col justify-between bg-[linear-gradient(180deg,#263b4d_0%,#24384a_100%)] px-5 py-6 text-white sm:px-8 sm:py-7 lg:w-[462px] lg:px-10 lg:py-8">
             <div className="flex items-center gap-4">
               <Image
                 src="/icons/capwhite.svg"
@@ -38,7 +38,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="bg-[#f8f8f7] p-1.5">
-            <div className="flex h-full min-h-[460px] flex-col rounded-[4px] bg-white px-5 py-6 text-[#24384a] sm:min-h-[520px] sm:px-8 sm:py-7 lg:min-h-[540px]">
+            <div className="flex h-full min-h-[460px] flex-col rounded-[4px] bg-white px-5 py-6 text-[#24384a] sm:min-h-[520px] sm:px-8 sm:py-7 lg:min-h-[498px] lg:px-8 lg:py-7">
               {children}
             </div>
           </div>

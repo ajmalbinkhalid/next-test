@@ -5,7 +5,10 @@ export interface QuestionOption {
 
 export interface ExamQuestion {
   id: number;
+  number?: number;
   question: string;
+  comprehension?: string | null;
+  image?: string | null;
   options: QuestionOption[];
 }
 
